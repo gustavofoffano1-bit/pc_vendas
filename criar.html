@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Criar Novo PC</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+    }
+    .page {
+      background: #fff;
+      width: 794px;   /* A4 em px a 96dpi */
+      min-height: 1123px;
+      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    h1 { text-align: center; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 15px; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    .actions {
+      margin-top: 25px;
+      text-align: center;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Adicionar Novo PC</h1>
+    <form id="formPc">
+      <label>Título:</label>
+      <input type="text" id="titulo" required>
+
+      <label>Descrição:</label>
+      <textarea id="descricao" required></textarea>
+
+      <label>Link da Imagem (Google Drive ou outra URL):</label>
+      <input type="url" id="imagem" placeholder="opcional">
+
+      <label>Link para Especificações:</label>
+      <input type="url" id="link" placeholder="pcX.html">
+
+      <div class="actions">
+        <button type="submit">Salvar PC</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "pcs";
+    const PLACEHOLDER_IMG =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="250" height="188" viewBox="0 0 250 188">
+        <rect width="100%" height="100%" fill="#e9e9e9"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="#777">?</text>
+      </svg>`);
+
+    function getPcs() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+    function savePcs(pcs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pcs));
+    }
+
+    document.getElementById("formPc").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const titulo = document.getElementById("titulo").value.trim();
+      const descricao = document.getElementById("descricao").value.trim();
+      const imagem = document.getElementById("imagem").value.trim();
+      const link = document.getElementById("link").value.trim();
+
+      const novoPc = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        title: titulo,
+        description: descricao,
+        image: imagem || PLACEHOLDER_IMG,
+        link: link || "#"
+      };
+
+      const pcs = getPcs();
+      pcs.push(novoPc);
+      savePcs(pcs);
+
+      alert("✅ PC adicionado com sucesso!");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

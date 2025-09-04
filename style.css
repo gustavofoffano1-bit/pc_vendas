@@ -1,0 +1,157 @@
+/* ======= RESET ======= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ======= GERAL ======= */
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ======= CABEÇALHO ======= */
+header {
+  background: #222;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2rem;
+}
+
+header .subtitulo {
+  font-size: 1.1rem;
+  margin-top: 5px;
+  color: #ddd;
+}
+
+/* ======= LISTA DE PCs ======= */
+main {
+  flex: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
+  background: #f5f5f5;
+}
+
+/* Card de cada PC */
+.pc-card {
+  background: #fff;
+  width: 260px;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.pc-card:hover {
+  transform: translateY(-5px);
+}
+
+.pc-card img {
+  width: 100%;
+  aspect-ratio: 3 / 4;   /* >>> Mantém formato 3x4 fixo <<< */
+  object-fit: cover;     /* corta sem distorcer */
+  border-radius: 8px;
+}
+
+/* ======= BOTÕES ======= */
+.btn, .btn-whatsapp, .btn.adicionar {
+  display: inline-block;
+  margin: 8px 5px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn {
+  background: #007bff;
+}
+
+.btn:hover {
+  background: #0056b3;
+}
+
+.btn-whatsapp {
+  background: #25d366;
+}
+
+.btn-whatsapp:hover {
+  background: #1da851;
+}
+
+.btn.adicionar {
+  background: #28a745;
+}
+
+.btn.admin {
+  background: #ff6600;
+  margin-top: 15px;
+}
+
+/* ======= PÁGINA DE DETALHES (pcX.html) ======= */
+.pc-detalhes {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.pc-detalhes img {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.pc-detalhes .descricao {
+  text-align: left;
+  margin: 20px 0;
+  font-size: 1rem;
+}
+
+/* ======= VÍDEOS ======= */
+.videos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.videos iframe {
+  flex: 1 1 350px;
+  max-width: 400px;
+  border-radius: 8px;
+  height: 220px;
+}
+
+/* ======= RODAPÉ ======= */
+footer {
+  width: 100%;
+  background: #222;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
+}
+
+

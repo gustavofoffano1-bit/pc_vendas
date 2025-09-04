@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>PCs à venda</title>
+  <style>
+    :root { --max: 1000px; }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #222;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      flex: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 10px 5px;
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Lista de PCs */
+    #listaPcs {
+      display: flex;
+      flex-wrap: wrap;         /* coloca lado a lado */
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .pc-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      padding: 15px;
+      text-align: center;
+      position: relative;
+      width: 250px;            /* formato 3x4 aprox */
+      overflow: visible;       /* garante menu aberto visível */
+    }
+
+    .pc-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .btn-whatsapp {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .btn-specs {
+      background: #007bff;
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    /* 3 pontinhos (mostra só em admin) */
+    .menu-admin {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+      display: none;                /* escondido por padrão */
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      background: #f4f4f4;
+      color: #333;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      display: none;                /* só aparece no admin */
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .menu-admin:hover { background: #eee; }
+
+    /* Quando o body estiver em modo admin, exibe os 3 pontinhos */
+    body.admin-on .menu-admin { display: inline-flex; }
+
+    .menu-opcoes {
+      display: none;
+      position: absolute;
+      top: 42px;
+      right: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 100;
+      min-width: 160px;
+      overflow: hidden;
+    }
+    .menu-opcoes button {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .menu-opcoes button:hover { background: #f5f5f5; }
+
+    .admin-center {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    footer {
+      background: #222;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      margin-top: auto;
+    }
+    footer a { color: #25D366; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PCs à venda</h1>
+    <p>Confiabilidade e custo benefício é só aqui!</p>
+  </header>
+
+  <div class="container">
+    <!-- Card semente (HTML visível na 1ª carga). O JS lê e salva no localStorage se estiver vazio -->
+    <main id="listaPcs">
+      <div class="pc-card" data-semente="true">
+        <span class="menu-admin" title="Opções">⋮
+          <div class="menu-opcoes">
+            <button data-acao="editar">✏️ Editar</button>
+            <button data-acao="excluir">🗑️ Excluir</button>
+          </div>
+        </span>
+
+        <img src="imagens/pc1.jpg" alt="PC Gamer">
+        <h2>PC Gamer Potente</h2>
+        <p>Ryzen 5 5500, RX 580, 16GB RAM, SSD 500GB</p>
+        <a href="pc1.html" class="btn btn-specs">📑 Ver especificações</a>
+        <a href="https://wa.me/5532988716800" target="_blank" class="btn-whatsapp">📱 WhatsApp</a>
+      </div>
+    </main>
+
+    <div class="admin-center">
+      <a href="criar.html" id="btnCriar" class="btn" style="display:none;">➕ Criar Novo PC</a>
+      <button id="btnAdmin" class="btn" style="background:#444;">🔑 Entrar como Admin</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>📱 WhatsApp: <a href="https://wa.me/5532988716800" target="_blank">+55 32 98871-6800</a></p>
+    <p>🏠 Endereço: Rua Tiradentes 251, Barra, Muriaé - MG</p>
+  </footer>
+
+  <script>
+    /* ======= Storage helpers ======= */
+    const STORAGE_KEY = "pcs";
+    const PLACEHOLDER_IMG =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="250" height="188" viewBox="0 0 250 188">
+        <rect width="100%" height="100%" fill="#e9e9e9"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="#777">?</text>
+      </svg>`);
+
+    function getPcs() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.warn("localStorage corrompido. Resetando…", e);
+        localStorage.removeItem(STORAGE_KEY);
+        return [];
+      }
+    }
+    function savePcs(pcs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pcs));
+    }
+
+    /* Usa o card do HTML como semente, se o storage estiver vazio */
+    function seedFromDOMIfEmpty() {
+      let pcs = getPcs();
+      if (pcs.length > 0) return;
+
+      const seed = document.querySelector('#listaPcs .pc-card[data-semente="true"]');
+      if (seed) {
+        const img = seed.querySelector("img")?.getAttribute("src") || "";
+        const title = seed.querySelector("h2")?.textContent?.trim() || "PC";
+        const desc = seed.querySelector("p")?.textContent?.trim() || "";
+        const link = seed.querySelector(".btn-specs")?.getAttribute("href") || "#";
+        pcs = [
+          {
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+            title, description: desc, image: img, link
+          }
+        ];
+        savePcs(pcs);
+      } else {
+        // fallback, caso apaguem o card semente por engano
+        pcs = [
+          {
+            id: "default-5500-rx580",
+            title: "PC Gamer Potente",
+            description: "Ryzen 5 5500, RX 580, 16GB RAM, SSD 500GB",
+            image: "imagens/pc1.jpg",
+            link: "pc1.html"
+          }
+        ];
+        savePcs(pcs);
+      }
+    }
+
+    /* ======= Render ======= */
+    function render() {
+      const lista = document.getElementById("listaPcs");
+      const pcs = getPcs();
+
+      // limpa e reconstrói
+      lista.innerHTML = "";
+
+      pcs.forEach((pc, index) => {
+        const card = document.createElement("div");
+        card.className = "pc-card";
+        card.dataset.index = index;
+
+        card.innerHTML = `
+          <span class="menu-admin" title="Opções">⋮
+            <div class="menu-opcoes">
+              <button data-acao="editar">✏️ Editar</button>
+              <button data-acao="excluir">🗑️ Excluir</button>
+            </div>
+          </span>
+          <img src="${pc.image || PLACEHOLDER_IMG}" alt="${pc.title || 'PC'}">
+          <h2>${pc.title || 'PC'}</h2>
+          <p>${pc.description || ''}</p>
+          <a href="${pc.link || '#'}" class="btn btn-specs">📑 Ver especificações</a>
+          <a href="https://wa.me/5532988716800" target="_blank" class="btn-whatsapp">📱 WhatsApp</a>
+        `;
+
+        // abre/fecha menu
+        const dot = card.querySelector(".menu-admin");
+        const menu = card.querySelector(".menu-opcoes");
+        dot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          // fecha outros
+          document.querySelectorAll(".menu-opcoes").forEach(m => m.style.display = "none");
+          menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        // ações do menu
+        menu.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const acao = btn.dataset.acao;
+            if (acao === "excluir") handleDelete(index);
+            if (acao === "editar") handleEdit(index);
+            menu.style.display = "none";
+          });
+        });
+
+        lista.appendChild(card);
+      });
+    }
+
+    // fecha menus ao clicar fora
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".menu-opcoes").forEach(m => m.style.display = "none");
+    });
+
+    /* ======= Actions ======= */
+    function handleDelete(index) {
+      if (!confirm("Tem certeza que deseja excluir este PC?")) return;
+      const pcs = getPcs();
+      pcs.splice(index, 1);
+      savePcs(pcs);
+      render();
+    }
+
+    function handleEdit(index) {
+      const pcs = getPcs();
+      const pc = pcs[index];
+
+      const novoTitulo = prompt("Novo título:", pc.title);
+      if (novoTitulo === null) return;
+      const novaDescricao = prompt("Nova descrição:", pc.description);
+      if (novaDescricao === null) return;
+      const novaImagem = prompt("Novo link da imagem (deixe vazio para manter):", pc.image || "");
+      if (novaImagem === null) return;
+      const novoLink = prompt("Novo link de especificações:", pc.link || "#");
+      if (novoLink === null) return;
+
+      pcs[index] = {
+        ...pc,
+        title: (novoTitulo || pc.title).trim(),
+        description: (novaDescricao || pc.description).trim(),
+        image: (novaImagem || pc.image || "").trim(),
+        link: (novoLink || pc.link || "#").trim()
+      };
+      savePcs(pcs);
+      render();
+    }
+
+    /* ======= Admin ======= */
+    document.getElementById("btnAdmin").addEventListener("click", () => {
+      const senha = prompt("Digite a senha de admin:");
+      if (senha === "1209") {
+        document.body.classList.add("admin-on");     // <- ativa visual dos 3 pontinhos
+        document.getElementById("btnCriar").style.display = "inline-block";
+        alert("✅ Modo admin ativado! Os 3 pontinhos aparecem no canto dos cards.");
+      } else {
+        alert("❌ Senha incorreta!");
+      }
+    });
+
+    /* ======= Boot ======= */
+    seedFromDOMIfEmpty();  // garante pelo menos 1 PC
+    render();              // desenha
+  </script>
+</body>
+</html>
